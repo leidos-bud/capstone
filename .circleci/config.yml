@@ -63,7 +63,8 @@ jobs:
       - run:
           name: Lint Dockerfile
           command: |
-            cd DuckHunt-JS && hadolint Dockerfile
+            cd ./DuckHunt-JS
+            hadolint Dockerfile
       - slack/notify:
           event: fail
           template: basic_fail_1
@@ -82,7 +83,8 @@ jobs:
       - run:
           name: Docker Build
           command: |
-            cd DuckHunt-JS && docker build -t $DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7} .
+            cd DuckHunt-JS
+            docker build -t $DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7} .
       - run:
           name: Docker Push
           command: |
