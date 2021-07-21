@@ -65,8 +65,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd
-            apk update
             sudo apt install -y curl jq zip unzip
             ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint && sudo mv hadolint /usr/local/bin)
       - checkout
@@ -119,8 +117,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd
-            apk update
             sudo apt install -y curl jq zip unzip
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && sudo mv kops /usr/local/bin
@@ -151,8 +147,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd
-            apk update
             sudo apt install -y curl jq zip unzip
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && sudo mv kops /usr/local/bin
@@ -184,8 +178,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd
-            apk update
             sudo apt install -y curl jq zip unzip
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && sudo mv kops /usr/local/bin
