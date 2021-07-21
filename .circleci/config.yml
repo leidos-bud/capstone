@@ -65,6 +65,7 @@ jobs:
       - run:
           name: Lint Dockerfile
           command: |
+            echo $CIRCLE_WORKING_DIRECTORY
             ls -lah $CIRCLE_WORKING_DIRECTORY/
             ls -lah $CIRCLE_WORKING_DIRECTORY/DuckHunt-JS/
             cat $CIRCLE_WORKING_DIRECTORY/DuckHunt-JS/package.json
