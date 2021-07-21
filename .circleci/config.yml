@@ -72,10 +72,10 @@ jobs:
       - run:
           name: Lint Dockerfile
           command: |
-            echo $CIRCLE_WORKING_DIRECTORY
-            ls -lah $CIRCLE_WORKING_DIRECTORY/
-            ls -lah $CIRCLE_WORKING_DIRECTORY/duckhunt/
-            cat $CIRCLE_WORKING_DIRECTORY/duckhunt/package.json
+            pwd
+            ls -lah 
+            ls -lah ./duckhunt/
+            cat ./duckhunt/package.json
             hadolint Dockerfile
       - slack/notify:
           event: fail
@@ -97,7 +97,7 @@ jobs:
       - run:
           name: Docker Build
           command: |
-            docker build -t $DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7} $CIRCLE_WORKING_DIRECTORY/.
+            docker build -t $DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7} .
       - run:
           name: Docker Push
           command: |
