@@ -126,7 +126,7 @@ jobs:
       - run:
           name: Export KOPS KUBECONFIG
           command: |
-            ./kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
+            kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
       - run:
           name: Store currently deployed image 
           command: |
@@ -156,7 +156,7 @@ jobs:
       - run:
           name: Export KOPS KUBECONFIG
           command: |
-            ./kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
+            kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
       - run:
           name: Remove 
           command: |
@@ -187,7 +187,7 @@ jobs:
       - run:
           name: Export KOPS KUBECONFIG
           command: |
-            ./kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
+            kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
       - run:
           name: Test Duckhunt Web
           command: |
