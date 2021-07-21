@@ -126,6 +126,9 @@ jobs:
       - run:
           name: Export KOPS KUBECONFIG
           command: |
+            echo "KOPS Cluster Name: $KOPS_CLUSTER_NAME"
+            echo "KOPS State Store : $KOPS_STATE_STORE"
+            aws s3 ls
             kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
       - run:
           name: Store currently deployed image 
