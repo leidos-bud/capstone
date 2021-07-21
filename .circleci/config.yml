@@ -63,6 +63,8 @@ jobs:
       - run:
           name: Lint Dockerfile
           command: |
+            pwd
+            ls -lah
             cd ./DuckHunt-JS
             hadolint Dockerfile
       - slack/notify:
