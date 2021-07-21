@@ -63,7 +63,6 @@ jobs:
       - run:
           name: Lint Dockerfile
           command: |
-            cd $CIRCLE_WORKING_DIRECTORY
             ls -lah
             hadolint ./DuckHunt-JS/Dockerfile
       - slack/notify:
@@ -84,7 +83,6 @@ jobs:
       - run:
           name: Docker Build
           command: |
-            cd $CIRCLE_WORKING_DIRECTORY
             docker build -t $DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7} ./DuckHunt-JS/
       - run:
           name: Docker Push
