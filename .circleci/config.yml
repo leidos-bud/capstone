@@ -47,11 +47,20 @@ commands:
             kubectl create deployment udacity-duckhunt --image=$DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7}
             kubectl expose deployment udacity-duckhunt --port=80 --target-port=8080 --name=duckhunt --type=LoadBalancer
 
+  aws-cli-install-circleci-node:
+    description: Install the AWS-CLI Tools In CircleCI-Node image
+    steps:
+      - run:
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$HOME/awscliv2.zip"
+            cd $HOME && unzip awscliv2.zip
+            cd $HOME/aws && sudo ./install
+
 jobs:
   lint:
     # working_directory: ~/project.home
     docker: 
-      - image: alpine:latest
+      - image: circleci/node:14.17.3
     steps:
       - run:
           name: Install dependencies
@@ -59,8 +68,8 @@ jobs:
             cd
             [ ! -f $CIRCLE_WORKING_DIRECTORY ] && mkdir $CIRCLE_WORKING_DIRECTORY
             apk update
-            apk add --update jq aws-cli grep curl git openssh
-            ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint && mv hadolint /usr/local/bin)
+            sudo apt install -y curl jq zip unzip
+            ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint && sudo mv hadolint /usr/local/bin)
       - checkout
           # path: ~/project.home
       - run:
@@ -107,7 +116,7 @@ jobs:
   pre-deploy:
     # working_directory: ~/project.home
     docker: 
-      - image: alpine:latest
+      - image: circleci/node:14.17.3
     steps:
       - run:
           name: Install dependencies
@@ -115,9 +124,10 @@ jobs:
             cd
             [ ! -f $CIRCLE_WORKING_DIRECTORY ] && mkdir $CIRCLE_WORKING_DIRECTORY
             apk update
-            apk add --update jq aws-cli grep curl git openssh
+            sudo apt install -y curl jq zip unzip
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
-            chmod +x ./kops && mv kops /usr/local/bin
+            chmod +x ./kops && sudo mv kops /usr/local/bin
+      - aws-cli-install-circleci-node
       - checkout
           # path: ~/project.home
       - run:
@@ -139,7 +149,7 @@ jobs:
   deploy:
     # working_directory: ~/project.home
     docker:
-      - image: alpine:latest
+      - image: circleci/node:14.17.3
     steps:
       - run:
           name: Install dependencies
@@ -147,9 +157,10 @@ jobs:
             cd
             [ ! -f $CIRCLE_WORKING_DIRECTORY ] && mkdir $CIRCLE_WORKING_DIRECTORY
             apk update
-            apk add --update jq curl aws-cli grep git openssh
+            sudo apt install -y curl jq zip unzip
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
-            chmod +x ./kops && mv kops /usr/local/bin
+            chmod +x ./kops && sudo mv kops /usr/local/bin
+      - aws-cli-install-circleci-node
       - checkout
           # path: ~/project.home
       - run:
@@ -172,7 +183,7 @@ jobs:
   test:
     # working_directory: ~/project.home
     docker:
-      - image: alpine:latest
+      - image: circleci/node:14.17.3
     steps:
       - run:
           name: Install dependencies
@@ -180,9 +191,10 @@ jobs:
             cd
             [ ! -f $CIRCLE_WORKING_DIRECTORY ] && mkdir $CIRCLE_WORKING_DIRECTORY
             apk update
-            apk add --update jq curl aws-cli grep git openssh
+            sudo apt install -y curl jq zip unzip
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
-            chmod +x ./kops && mv kops /usr/local/bin
+            chmod +x ./kops && sudo mv kops /usr/local/bin
+      - aws-cli-install-circleci-node
       - checkout
           # path: ~/project.home
       - run:
