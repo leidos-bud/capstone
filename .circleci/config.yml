@@ -57,6 +57,7 @@ jobs:
           name: Install dependencies
           command: |
             cd
+            [ ! -f $CIRCLE_WORKING_DIRECTORY ] && mkdir $CIRCLE_WORKING_DIRECTORY
             apk update
             apk add --update jq aws-cli grep curl git openssh
             ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint && mv hadolint /usr/local/bin)
@@ -84,6 +85,7 @@ jobs:
       - run:
           name: Docker Login
           command: |
+            [ ! -f $CIRCLE_WORKING_DIRECTORY ] && mkdir $CIRCLE_WORKING_DIRECTORY
             echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
       - checkout
           # path: ~/project.home
@@ -111,6 +113,7 @@ jobs:
           name: Install dependencies
           command: |
             cd
+            [ ! -f $CIRCLE_WORKING_DIRECTORY ] && mkdir $CIRCLE_WORKING_DIRECTORY
             apk update
             apk add --update jq aws-cli grep curl git openssh
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
@@ -142,6 +145,7 @@ jobs:
           name: Install dependencies
           command: |
             cd
+            [ ! -f $CIRCLE_WORKING_DIRECTORY ] && mkdir $CIRCLE_WORKING_DIRECTORY
             apk update
             apk add --update jq curl aws-cli grep git openssh
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
@@ -174,6 +178,7 @@ jobs:
           name: Install dependencies
           command: |
             cd
+            [ ! -f $CIRCLE_WORKING_DIRECTORY ] && mkdir $CIRCLE_WORKING_DIRECTORY
             apk update
             apk add --update jq curl aws-cli grep git openssh
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
