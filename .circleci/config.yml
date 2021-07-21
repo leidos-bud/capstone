@@ -120,6 +120,8 @@ jobs:
             sudo apt install -y curl jq zip unzip
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && sudo mv kops /usr/local/bin
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x ./kubectl && sudo mv kubectl /usr/local/bin
       - aws-cli-install-circleci-node
       - checkout
           # path: ~/project.home
@@ -155,6 +157,8 @@ jobs:
             sudo apt install -y curl jq zip unzip
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && sudo mv kops /usr/local/bin
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x ./kubectl && sudo mv kubectl /usr/local/bin
       - aws-cli-install-circleci-node
       - checkout
           # path: ~/project.home
@@ -190,6 +194,8 @@ jobs:
             sudo apt install -y curl jq zip unzip
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && sudo mv kops /usr/local/bin
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x ./kubectl && sudo mv kubectl /usr/local/bin
       - aws-cli-install-circleci-node
       - checkout
           # path: ~/project.home
