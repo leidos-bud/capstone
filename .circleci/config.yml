@@ -209,7 +209,9 @@ jobs:
             kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
       - run:
           name: Test Duckhunt Web
-          command: ansible-playbook ansible/elbtest.yml
+          command: |
+            ansible-playbook ansible/elbtest.yml
+            export DUCKHUNT_ELB=$(kubectl get services | grep duckhunt | awk {'print $4'})
       - slack/notify:
           event: fail
           template: basic_fail_1
