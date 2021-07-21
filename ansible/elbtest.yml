@@ -1,0 +1,20 @@
+---
+  - name: ELB Testing
+    hosts: localhost
+    connection: localhost
+    tasks:
+    - name: Test ELB Connectivity
+      shell: |
+        export DUCKHUNT_ELB=$(kubectl get services | grep duckhunt | awk {'print $4'})
+        if ( curl http://$DUCKHUNT_ELB | grep DuckHuntJS ); then
+        echo SUCCESS
+        export EXIT_STATUS=0
+        else
+        echo FAILURE
+        export EXIT_STATUS=1
+        fi
+        exit $EXIT_STATUS
+      register: elbtest
+      until: elbtest is success
+      retries: 60
+      delay: 15

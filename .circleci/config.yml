@@ -189,7 +189,7 @@ jobs:
             echo "KOPS State Store : $KOPS_STATE_STORE"
             kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
       - run:
-          name: Remove 
+          name: Deploy Newer Duckhunt Docker Image 
           command: |
             kubectl delete deployment udacity-duckhunt --wait
             kubectl delete service duckhunt --wait
@@ -210,7 +210,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt install -y curl jq zip unzip
+            sudo apt install -y curl jq zip unzip python3-pip
+            sudo pip3 install ansible==4.2.0
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && sudo mv kops /usr/local/bin
             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -229,16 +230,7 @@ jobs:
             kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
       - run:
           name: Test Duckhunt Web
-          command: |
-            export DUCKHUNT_ELB=$(kubectl get services | grep duckhunt | awk {'print $4'})
-            if ( curl http://$DUCKHUNT_ELB | grep DuckHuntJS ); then
-            echo SUCCESS
-            export EXIT_STATUS=0
-            else
-            echo FAILURE
-            export EXIT_STATUS=1
-            fi
-            exit $EXIT_STATUS
+          command: ansible-playbook ansible/elbtest.yml
       - slack/notify:
           event: fail
           template: basic_fail_1
