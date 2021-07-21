@@ -1,0 +1,13 @@
+ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCMpKqSGqVkczgAQx2FUP1mMQKAlymlgiVr/erKlBXUT9AAwCS++6Lotz/ythdchit/Z1J5P6TNw2i11nuNRkZ+TZGdYKGGn0CwQE+xSYzrbB3Ctu4Vq1imKdBypgytFhCRj6pXBCwOiHuJyOduZm1kcoF7Tfes6J+nmtUzI3vDQKNdTCrdXqMl5ZTR8EL9omWnsJfq94wHtKrJopAjV0E5DKloo69DM00w8EMthbbCqvqRMIcyy02vM1mgVT7cIJCkxIuIfpWPVQNBUeh+2G/RqUNzJX/kszGcAipPUULFhtlaI4yJyM95GWUNlSKWnFjxfvcGgtWYKFuTKfyCcGMJ"
+cluster_name: "cluster.duckhunt.valortech.net"
+KOPS_STATE_STORE: "s3://duckhunt.valortech.net"
+instance_image: "ubuntu/ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20210622"
+master_instance_type: "t3a.small"
+master_min_instance_count: 1
+master_max_instance_count: 1
+node_instance_type: "t3a.small"
+node_min_instance_count: 1
+node_max_instance_count: 2
+config_base: "{{ KOPS_STATE_STORE }}/{{ cluster_name }}"
+whitelist_ips: "'0.0.0.0/0'" # "'138.207.129.87/32','204.115.183.0/24','149.8.13.0/24'"
+aws_zone: "us-east-1a"

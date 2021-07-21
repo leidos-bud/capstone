@@ -1,0 +1,266 @@
+version: 2.1
+
+slack-fail-post-step: &slack-fail-post-step
+  post-steps:
+    - slack/notify:
+        custom: |
+          {
+            "text": "",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "❌ *Failure* in Build:`#${CIRCLE_BUILD_NUM}` Project:`${CIRCLE_PROJECT_REPONAME}` on Branch:`${CIRCLE_BRANCH}`"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View Job"
+                    },
+                    "url": "${CIRCLE_BUILD_URL}"
+                  }
+                ]
+              }
+            ]
+          }
+        event: fail
+
+orbs:
+  slack: circleci/slack@4.3.3
+
+commands:
+  revert-migration:
+    description: Revert to previous Docker image
+    steps:
+      - run:
+          name: Revert migration
+          when: on_fail
+          command: |
+            export revert_dh_image=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/revert_${CIRCLE_WORKFLOW_ID:0:7})
+            kubectl delete deployment udacity-duckhunt
+            kubectl create deployment udacity-duckhunt --image=$DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7}
+            kubectl expose deployment udacity-duckhunt --port=80 --target-port=8080 --name=duckhunt --type=LoadBalancer
+
+jobs:
+  lint:
+    docker: 
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Check for & install Hadolint
+          command: |
+            ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-$(OS)-x86_64 && chmod +x hadolint)
+      - run:
+          name: Lint Dockerfile
+          command: |
+            ./hadolint Dockerfile
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Docker Login
+          command: |
+            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+      - run:
+          name: Docker Build
+          command: |
+            docker build -t $DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7} .
+      - run:
+          name: Docker Push
+          command: |
+            docker push $DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7}
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+  pre-deploy:
+    docker: 
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk update
+            apk add --update aws-cli grep curl
+            curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
+            chmod +x ./kops
+      - run:
+          name: Export KOPS KUBECONFIG
+          command: |
+            ./kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
+      - run:
+          name: Store currently deployed image 
+          command: |
+            export revert_dh_image=$(kubectl describe deployment udacity-duckhunt | grep Image: | awk {'print $2'})
+            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "$revert_dh_image" https://api.memstash.io/values/revert_${CIRCLE_WORKFLOW_ID:0:7}
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+  deploy:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk update
+            apk add --update curl aws-cli grep
+            curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
+            chmod +x ./kops
+      - run:
+          name: Export KOPS KUBECONFIG
+          command: |
+            ./kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
+      - run:
+          name: Remove 
+          command: |
+            kubectl delete deployment udacity-duckhunt
+            kubectl create deployment udacity-duckhunt --image=$DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7}
+            kubectl expose deployment udacity-duckhunt --port=80 --target-port=8080 --name=duckhunt --type=LoadBalancer
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+  test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk update
+            apk add --update curl aws-cli grep
+            curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
+            chmod +x ./kops
+      - run:
+          name: Export KOPS KUBECONFIG
+          command: |
+            ./kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
+      - run:
+          name: Test Duckhunt Web
+          command: |
+            if ( curl $DUCKHUNT_URL | grep DuckHuntJS ); then
+            echo SUCCESS
+            export EXIT_STATUS=0
+            else
+            echo FAILURE
+            export EXIT_STATUS=1
+            fi
+            exit $EXIT_STATUS
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+      # destroy-environment and revert-migrations commands only execute when: on_fail
+      - revert-migration
+
+  last-job:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Success
+          command: |
+            exit 0
+
+workflows:
+  default:
+    jobs:
+      - lint:
+          context:
+            - Slack
+          <<: *slack-fail-post-step
+      - build:
+          requires: [lint]
+          context:
+            - Slack
+            - Docker_DH
+          <<: *slack-fail-post-step
+      - pre-deploy:
+          requires: [build]
+          context:
+            - Slack
+            - AWSCLI
+          <<: *slack-fail-post-step
+      - deploy:
+          requires: [pre-deploy]
+          context:
+            - Slack
+            - Docker_DH
+            - AWSCLI
+          <<: *slack-fail-post-step
+      - test:
+          requires: [deploy]
+          context:
+            - Slack
+            - Docker_DH
+            - AWSCLI
+          <<: *slack-fail-post-step
+      - last-job:
+          context:
+            - Slack
+          requires:
+            - lint
+            - build
+            - pre-deploy
+            - deploy
+            - test
+          post-steps:
+            - slack/notify:
+                custom: |
+                  {
+                    "text": "",
+                    "blocks": [
+                      {
+                        "type": "section",
+                        "text": {
+                          "type": "mrkdwn",
+                          "text": "✅ *Success* Build:`#${CIRCLE_BUILD_NUM}` Project:`${CIRCLE_PROJECT_REPONAME}` on Branch:`${CIRCLE_BRANCH}`"
+                        }
+                      },
+                      {
+                        "type": "actions",
+                        "elements": [
+                          {
+                            "type": "button",
+                            "text": {
+                              "type": "plain_text",
+                              "text": "View Job"
+                            },
+                            "url": "${CIRCLE_BUILD_URL}"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                event: always

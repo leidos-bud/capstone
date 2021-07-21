@@ -26,7 +26,7 @@
 ------------
 ```
 ├─.circleci
-├─────config.yml                          - CircleCI CI/CD Linting
+├─────config.yml                          - CircleCI CI/CD Parameters
 ├─.gitignore                              - Git File/Folder Ignore Definition
 ├─README.md                               - This Document
 └─                                        - 

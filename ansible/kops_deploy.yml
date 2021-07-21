@@ -1,0 +1,64 @@
+---
+  - name: Deploy KOPS Cluster
+    hosts: localhost
+    connection: localhost
+    vars:
+      cluster_spec_file: "/tmp/duckhunt.clusterspec.yml"
+    vars_files:
+      - vars/main.yml
+    tasks:
+    - include_role: 
+        name: create-cluster-spec
+
+    - name: Download KOPS Binary (Linux)
+      shell: curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64 && chmod +x ./kops
+      when: ansible_system == "Linux"
+
+    - name: Download KOPS Binary (macOS)
+      shell: curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-darwin-amd64 && chmod +x ./kops
+      when: ansible_system == "Darwin"
+
+    - name: Check for Existing KOPS Cluster Deployment
+      shell: KOPS_STATE_STORE={{ KOPS_STATE_STORE }} ./kops get cluster {{ cluster_name }}
+      register: result
+      ignore_errors: true
+
+    - name: "Deploying KOPS Cluster" 
+      debug:
+        msg: |
+          --------------------------------------------------------------------
+          | Deploying KOPS Cluster: {{ cluster_name }}
+          --------------------------------------------------------------------
+          | ** Note: This will take several minutes
+          --------------------------------------------------------------------
+
+      when: not result is success
+
+    - name: Deploy KOPS Cluster
+      shell: |
+        KOPS_STATE_STORE={{ KOPS_STATE_STORE }} ./kops create -f {{ cluster_spec_file }}
+        KOPS_STATE_STORE={{ KOPS_STATE_STORE }} ./kops update cluster {{ cluster_name }} --yes
+      when: not result is success
+
+    - name: Export KOPS Cluster KUBECONFIG
+      shell: |
+        KOPS_STATE_STORE={{ KOPS_STATE_STORE }} ./kops export kubecfg --admin --name {{ cluster_name }}
+      when: not result is success
+
+    - name: Wait for KOPS Cluster {{ cluster_name }}
+      shell: "kubectl get nodes --request-timeout='5s'"
+      register: deployment
+      until: deployment is success
+      retries: 60
+      delay: 15
+      when: not result is success
+
+    - name: "{{cluster_name}} deployed successfully!" 
+      debug:
+        msg: "{{ deployment.stdout.split('\n') }}"
+      when: not result is success
+
+    - name: Remove KOPS Binary
+      file:
+        path: ./kops
+        state: absent

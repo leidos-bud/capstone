@@ -1,0 +1,100 @@
+- name: Create KOPS Cluster Spec File
+  copy:
+    dest: "{{ cluster_spec_file }}"
+    content: |
+      apiVersion: kops.k8s.io/v1alpha2
+      kind: Cluster
+      metadata:
+        name: {{ cluster_name }}
+      spec:
+        api:
+          dns: {}
+        authorization:
+          rbac: {}
+        channel: stable
+        cloudProvider: aws
+        configBase: {{ config_base }}
+        etcdClusters:
+        - cpuRequest: 200m
+          etcdMembers:
+          - instanceGroup: master-{{ aws_zone }}
+            name: a
+          memoryRequest: 100Mi
+          name: main
+        - cpuRequest: 100m
+          etcdMembers:
+          - instanceGroup: master-{{ aws_zone }}
+            name: a
+          memoryRequest: 100Mi
+          name: events
+        iam:
+          allowContainerRegistry: true
+          legacy: false
+        kubelet:
+          anonymousAuth: false
+        kubernetesApiAccess: [{{ whitelist_ips }}]
+        kubernetesVersion: 1.19.11
+        masterPublicName: api.{{ cluster_name }}
+        networkCIDR: 172.20.0.0/16
+        networking:
+          kubenet: {}
+        nonMasqueradeCIDR: 100.64.0.0/10
+        sshAccess: [{{ whitelist_ips }}]
+        subnets:
+        - cidr: 172.20.32.0/19
+          name: {{ aws_zone }}
+          type: Public
+          zone: {{ aws_zone }}
+        topology:
+          dns:
+            type: Public
+          masters: public
+          nodes: public
+
+      ---
+
+      apiVersion: kops.k8s.io/v1alpha2
+      kind: InstanceGroup
+      metadata:
+        labels:
+          kops.k8s.io/cluster: {{ cluster_name }}
+        name: master-{{ aws_zone }}
+      spec:
+        image: {{ instance_image }}
+        machineType: {{ master_instance_type }}
+        maxSize: {{ master_max_instance_count }}
+        minSize: {{ master_min_instance_count }}
+        nodeLabels:
+          kops.k8s.io/instancegroup: master-{{ aws_zone }}
+        role: Master
+        subnets:
+        - {{ aws_zone }}
+
+      ---
+
+      apiVersion: kops.k8s.io/v1alpha2
+      kind: InstanceGroup
+      metadata:
+        labels:
+          kops.k8s.io/cluster: {{ cluster_name }}
+        name: nodes
+      spec:
+        image: {{ instance_image }}
+        machineType: {{ node_instance_type }}
+        maxSize: {{ node_max_instance_count }}
+        minSize: {{ node_min_instance_count }}
+        nodeLabels:
+          kops.k8s.io/instancegroup: nodes
+        role: Node
+        subnets:
+        - {{ aws_zone }}
+
+      ---
+
+      apiVersion: kops.k8s.io/v1alpha2
+      kind: SSHCredential
+      metadata:
+        labels:
+          kops.k8s.io/cluster: {{ cluster_name }}
+      spec:
+        publicKey: "{{ ssh_public_key }}"
