@@ -246,6 +246,7 @@ workflows:
           requires: [build]
           context:
             - Slack
+            - Docker_DH
             - AWSCLI
           <<: *slack-fail-post-step
       - deploy:
