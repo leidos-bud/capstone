@@ -12,3 +12,4 @@ node_max_instance_count: 2
 config_base: "{{ KOPS_STATE_STORE }}/{{ cluster_name }}"
 whitelist_ips: "'0.0.0.0/0'" # "'138.207.129.87/32','204.115.183.0/24','149.8.13.0/24'"
 aws_zone: "us-east-1a"
+aws_region: "us-east-1"
