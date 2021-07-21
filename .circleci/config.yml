@@ -72,10 +72,6 @@ jobs:
       - run:
           name: Lint Dockerfile
           command: |
-            pwd
-            ls -lah 
-            ls -lah ./duckhunt/
-            cat ./duckhunt/package.json
             hadolint Dockerfile
       - slack/notify:
           event: fail
