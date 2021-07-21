@@ -16,5 +16,5 @@
         exit $EXIT_STATUS
       register: elbtest
       until: elbtest is success
-      retries: 60
+      retries: 6
       delay: 15
