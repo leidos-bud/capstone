@@ -57,7 +57,7 @@ jobs:
           command: |
             cd
             apk update
-            apk add --update jq aws-cli grep curl
+            apk add --update jq aws-cli grep curl git
             ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint && mv hadolint /usr/local/bin)
       - checkout
       - run:
@@ -101,15 +101,15 @@ jobs:
     docker: 
       - image: alpine:latest
     steps:
-      - checkout
       - run:
           name: Install dependencies
           command: |
             cd
             apk update
-            apk add --update jq aws-cli grep curl
+            apk add --update jq aws-cli grep curl git
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && mv kops /usr/local/bin
+      - checkout
       - run:
           name: Export KOPS KUBECONFIG
           command: |
@@ -130,15 +130,15 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
-      - checkout
       - run:
           name: Install dependencies
           command: |
             cd
             apk update
-            apk add --update jq curl aws-cli grep
+            apk add --update jq curl aws-cli grep git
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && mv kops /usr/local/bin
+      - checkout
       - run:
           name: Export KOPS KUBECONFIG
           command: |
@@ -160,15 +160,15 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
-      - checkout
       - run:
           name: Install dependencies
           command: |
             cd
             apk update
-            apk add --update jq curl aws-cli grep
+            apk add --update jq curl aws-cli grep git
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && mv kops /usr/local/bin
+      - checkout
       - run:
           name: Export KOPS KUBECONFIG
           command: |
