@@ -1,7 +1,7 @@
-FROM alpine:latest
+FROM alpine:3.14.0
 
 # Install requirements
-RUN apk add curl npm nodejs
+RUN apk add --no-cache curl=7.77.0-r1 npm=7.17.0-r0 nodejs=14.17.1-r0
 
 # Create working directory
 WORKDIR /app
