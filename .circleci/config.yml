@@ -49,7 +49,7 @@ commands:
 
 jobs:
   lint:
-    working_directory: /project.home
+    working_directory: ~/project.home
     docker: 
       - image: alpine:latest
     steps:
@@ -61,7 +61,7 @@ jobs:
             apk add --update jq aws-cli grep curl git openssh
             ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint && mv hadolint /usr/local/bin)
       - checkout:
-          path: /project.home
+          path: ~/project.home
       - run:
           name: Lint Dockerfile
           command: |
@@ -78,7 +78,7 @@ jobs:
           template: basic_success_1
 
   build:
-    working_directory: /project.home
+    working_directory: ~/project.home
     machine: true
     steps:
       - run:
@@ -86,7 +86,7 @@ jobs:
           command: |
             echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
       - checkout:
-          path: /project.home
+          path: ~/project.home
       - run:
           name: Docker Build
           command: |
@@ -103,7 +103,7 @@ jobs:
           template: basic_success_1
 
   pre-deploy:
-    working_directory: /project.home
+    working_directory: ~/project.home
     docker: 
       - image: alpine:latest
     steps:
@@ -116,7 +116,7 @@ jobs:
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && mv kops /usr/local/bin
       - checkout:
-          path: /project.home
+          path: ~/project.home
       - run:
           name: Export KOPS KUBECONFIG
           command: |
@@ -134,7 +134,7 @@ jobs:
           template: basic_success_1
 
   deploy:
-    working_directory: /project.home
+    working_directory: ~/project.home
     docker:
       - image: alpine:latest
     steps:
@@ -147,7 +147,7 @@ jobs:
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && mv kops /usr/local/bin
       - checkout:
-          path: /project.home
+          path: ~/project.home
       - run:
           name: Export KOPS KUBECONFIG
           command: |
@@ -166,7 +166,7 @@ jobs:
           template: basic_success_1
 
   test:
-    working_directory: /project.home
+    working_directory: ~/project.home
     docker:
       - image: alpine:latest
     steps:
@@ -179,7 +179,7 @@ jobs:
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && mv kops /usr/local/bin
       - checkout:
-          path: /project.home
+          path: ~/project.home
       - run:
           name: Export KOPS KUBECONFIG
           command: |
