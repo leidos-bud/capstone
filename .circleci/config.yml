@@ -52,11 +52,13 @@ jobs:
     docker: 
       - image: alpine:latest
     steps:
-      - checkout
       - run:
-          name: Check for & install Hadolint
+          name: Install dependencies
           command: |
-            ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-$(OS)-x86_64 && chmod +x hadolint)
+            apk update
+            apk add --update aws-cli grep curl
+            ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint)
+      - checkout
       - run:
           name: Lint Dockerfile
           command: |
@@ -167,7 +169,8 @@ jobs:
       - run:
           name: Test Duckhunt Web
           command: |
-            if ( curl $DUCKHUNT_URL | grep DuckHuntJS ); then
+            export DUCKHUNT_ELB=$(kubectl get services | grep duckhunt | awk {'print $4'})
+            if ( curl http://$DUCKHUNT_ELB | grep DuckHuntJS ); then
             echo SUCCESS
             export EXIT_STATUS=0
             else
@@ -180,8 +183,19 @@ jobs:
           template: basic_fail_1
       - slack/notify:
           event: pass
-          template: basic_success_1
-      # destroy-environment and revert-migrations commands only execute when: on_fail
+          custom: |
+            {
+              "text": "",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "✅ *Success* -- Configure desired CNAME record to point to $DUCKHUNT_ELB"
+                  }
+                }
+              ]
+            }
       - revert-migration
 
   last-job:

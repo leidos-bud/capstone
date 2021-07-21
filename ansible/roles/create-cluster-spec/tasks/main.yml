@@ -33,7 +33,7 @@
         kubelet:
           anonymousAuth: false
         kubernetesApiAccess: [{{ whitelist_ips }}]
-        kubernetesVersion: 1.19.11
+        kubernetesVersion: {{ kubernetes_version }}
         masterPublicName: api.{{ cluster_name }}
         networkCIDR: 172.20.0.0/16
         networking:

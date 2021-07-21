@@ -58,7 +58,7 @@
         msg: "{{ deployment.stdout.split('\n') }}"
       when: not result is success
 
-    - name: Remove KOPS Binary
-      file:
-        path: ./kops
-        state: absent
+    # - name: Remove KOPS Binary
+    #   file:
+    #     path: ./kops
+    #     state: absent
