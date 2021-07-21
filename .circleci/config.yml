@@ -63,7 +63,7 @@ jobs:
       - run:
           name: Lint Dockerfile
           command: |
-            ls -lah
+            ls -lah ./DuckHunt-JS/
             hadolint ./DuckHunt-JS/Dockerfile
       - slack/notify:
           event: fail
