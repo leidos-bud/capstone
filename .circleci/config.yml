@@ -65,7 +65,8 @@ jobs:
       - run:
           name: Lint Dockerfile
           command: |
-            ls -lah
+            ls -lah $CIRCLE_WORKING_DIRECTORY/
+            ls -lah $CIRCLE_WORKING_DIRECTORY/DuckHunt-JS/
             cat $CIRCLE_WORKING_DIRECTORY/DuckHunt-JS/package.json
             hadolint Dockerfile
       - slack/notify:
