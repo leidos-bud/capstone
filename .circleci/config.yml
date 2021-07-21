@@ -60,7 +60,7 @@ jobs:
             apk update
             apk add --update jq aws-cli grep curl git openssh
             ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint && mv hadolint /usr/local/bin)
-      - checkout
+      - checkout:
           path: ~/project
       - run:
           name: Lint Dockerfile
@@ -79,7 +79,7 @@ jobs:
     working_directory: ~/project
     machine: true
     steps:
-      - checkout
+      - checkout:
           path: ~/project
       - run:
           name: Docker Login
@@ -113,7 +113,7 @@ jobs:
             apk add --update jq aws-cli grep curl git openssh
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && mv kops /usr/local/bin
-      - checkout
+      - checkout:
           path: ~/project
       - run:
           name: Export KOPS KUBECONFIG
@@ -144,7 +144,7 @@ jobs:
             apk add --update jq curl aws-cli grep git openssh
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && mv kops /usr/local/bin
-      - checkout
+      - checkout:
           path: ~/project
       - run:
           name: Export KOPS KUBECONFIG
@@ -176,7 +176,7 @@ jobs:
             apk add --update jq curl aws-cli grep git openssh
             curl -Lo kops https://github.com/kubernetes/kops/releases/download/v1.19.2/kops-linux-amd64
             chmod +x ./kops && mv kops /usr/local/bin
-      - checkout
+      - checkout:
           path: ~/project
       - run:
           name: Export KOPS KUBECONFIG
