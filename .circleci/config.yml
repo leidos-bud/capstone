@@ -67,8 +67,8 @@ jobs:
           command: |
             echo $CIRCLE_WORKING_DIRECTORY
             ls -lah $CIRCLE_WORKING_DIRECTORY/
-            ls -lah $CIRCLE_WORKING_DIRECTORY/DuckHunt-JS/
-            cat $CIRCLE_WORKING_DIRECTORY/DuckHunt-JS/package.json
+            ls -lah $CIRCLE_WORKING_DIRECTORY/duckhunt/
+            cat $CIRCLE_WORKING_DIRECTORY/duckhunt/package.json
             hadolint Dockerfile
       - slack/notify:
           event: fail

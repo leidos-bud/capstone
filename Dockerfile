@@ -7,7 +7,7 @@ RUN apk add --no-cache curl=7.77.0-r1 npm=7.17.0-r0 nodejs=14.17.1-r0
 WORKDIR /app
 
 # Copy source to working directory
-COPY ./DuckHunt-JS *.* /app/
+COPY ./duckhunt *.* /app/
 
 # Run NPM install
 RUN ls /app && npm install
