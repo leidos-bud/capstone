@@ -44,7 +44,7 @@ commands:
           command: |
             export revert_dh_image=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/revert_${CIRCLE_WORKFLOW_ID:0:7})
             kubectl delete deployment udacity-duckhunt --wait
-            kubectl create deployment udacity-duckhunt --image=$DOCKER_USER/$DOCKER_IMAGE_NAME.$revert_dh_image
+            kubectl create deployment udacity-duckhunt --image=$revert_dh_image
             (kubectl get services | grep duckhunt -q) || kubectl expose deployment udacity-duckhunt --port=80 --target-port=8080 --name=duckhunt --type=LoadBalancer
 
   aws-cli-install-circleci-node:
