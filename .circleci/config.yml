@@ -43,9 +43,25 @@ commands:
           when: on_fail
           command: |
             export revert_dh_image=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/revert_${CIRCLE_WORKFLOW_ID:0:7})
-            kubectl delete deployment udacity-duckhunt
-            kubectl create deployment udacity-duckhunt --image=$DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7}
+            kubectl delete deployment udacity-duckhunt --wait
+            kubectl delete service duckhunt --wait
+            kubectl create deployment udacity-duckhunt --image=$DOCKER_USER/$DOCKER_IMAGE_NAME.$revert_dh_image
             kubectl expose deployment udacity-duckhunt --port=80 --target-port=8080 --name=duckhunt --type=LoadBalancer
+      - slack/notify:
+          event: always
+          custom: |
+            {
+              "text": "",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Configure desired CNAME record to point to $DUCKHUNT_ELB"
+                  }
+                }
+              ]
+            }
 
   aws-cli-install-circleci-node:
     description: Install the AWS-CLI Tools In CircleCI-Node image
@@ -173,7 +189,8 @@ jobs:
       - run:
           name: Remove 
           command: |
-            kubectl delete deployment udacity-duckhunt
+            kubectl delete deployment udacity-duckhunt --wait
+            kubectl delete service duckhunt --wait
             kubectl create deployment udacity-duckhunt --image=$DOCKER_USER/$DOCKER_IMAGE_NAME.${CIRCLE_WORKFLOW_ID:0:7}
             kubectl expose deployment udacity-duckhunt --port=80 --target-port=8080 --name=duckhunt --type=LoadBalancer
       - slack/notify:
