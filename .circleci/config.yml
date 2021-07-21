@@ -57,12 +57,12 @@ jobs:
           command: |
             apk update
             apk add --update aws-cli grep curl
-            ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint)
+            ./hadolint --version || (curl -Lo hadolint https://github.com/hadolint/hadolint/releases/download/v2.5.0/hadolint-linux-x86_64 && chmod +x hadolint && mv hadolint /usr/local/bin)
       - checkout
       - run:
           name: Lint Dockerfile
           command: |
-            ./hadolint Dockerfile
+            hadolint Dockerfile
       - slack/notify:
           event: fail
           template: basic_fail_1
