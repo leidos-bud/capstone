@@ -126,6 +126,8 @@ jobs:
       - run:
           name: Export KOPS KUBECONFIG
           command: |
+            export KOPS_CLUSTER_NAME=$(cat ansible/vars/main.yml| grep cluster_name: | awk '{print $2}' | sed 's/"//g')
+            export KOPS_STATE_STORE=$(cat ansible/vars/main.yml| grep KOPS_STATE_STORE: | awk '{print $2}' | sed 's/"//g')
             echo "KOPS Cluster Name: $KOPS_CLUSTER_NAME"
             echo "KOPS State Store : $KOPS_STATE_STORE"
             aws s3 ls
@@ -159,6 +161,10 @@ jobs:
       - run:
           name: Export KOPS KUBECONFIG
           command: |
+            export KOPS_CLUSTER_NAME=$(cat ansible/vars/main.yml| grep cluster_name: | awk '{print $2}' | sed 's/"//g')
+            export KOPS_STATE_STORE=$(cat ansible/vars/main.yml| grep KOPS_STATE_STORE: | awk '{print $2}' | sed 's/"//g')
+            echo "KOPS Cluster Name: $KOPS_CLUSTER_NAME"
+            echo "KOPS State Store : $KOPS_STATE_STORE"
             kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
       - run:
           name: Remove 
@@ -190,6 +196,10 @@ jobs:
       - run:
           name: Export KOPS KUBECONFIG
           command: |
+            export KOPS_CLUSTER_NAME=$(cat ansible/vars/main.yml| grep cluster_name: | awk '{print $2}' | sed 's/"//g')
+            export KOPS_STATE_STORE=$(cat ansible/vars/main.yml| grep KOPS_STATE_STORE: | awk '{print $2}' | sed 's/"//g')
+            echo "KOPS Cluster Name: $KOPS_CLUSTER_NAME"
+            echo "KOPS State Store : $KOPS_STATE_STORE"
             kops export kubecfg --admin --name $KOPS_CLUSTER_NAME
       - run:
           name: Test Duckhunt Web
